@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wall -Wextra -g -rdynamic CMakeFiles/client.dir/client.c.o -o client 

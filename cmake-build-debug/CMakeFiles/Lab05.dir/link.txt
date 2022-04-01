@@ -1,0 +1,2 @@
+/usr/bin/ar qc libLab05.a CMakeFiles/Lab05.dir/library.c.o
+/usr/bin/ranlib libLab05.a

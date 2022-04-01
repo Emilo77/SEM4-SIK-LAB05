@@ -1,0 +1,11 @@
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/install/strip.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/install/local.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/install.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/list_install_components.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/edit_cache.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/preforked_server.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/reuse_server.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/proc_server.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/thread_server.dir
+/tmp/tmp.xwOn4xgMPv/cmake-build-debug/CMakeFiles/client.dir

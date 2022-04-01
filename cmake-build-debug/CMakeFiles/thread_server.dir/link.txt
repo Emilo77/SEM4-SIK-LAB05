@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wall -Wextra -g -rdynamic CMakeFiles/thread_server.dir/thread_server.c.o -o thread_server  -lpthread 

@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wall -Wextra -g -rdynamic CMakeFiles/proc_server.dir/proc_server.c.o -o proc_server 
