@@ -13,32 +13,42 @@
 #define QUEUE_LENGTH 5
 
 size_t sumOfData = 0;
+pthread_mutex_t dataMutex;
+pthread_mutex_t splitMutex;
 
-void write_file(int sockfd, char *filename) {
-	size_t read;
-	FILE *fp;
 
-	char line[LINE_SIZE];
-	memset(line, 0, LINE_SIZE);
-
-//	fp = fopen(filename, "ab+");
-	fp = fopen("result.txt", "w+");
-	if (fp == NULL) {
-		fatal("Could not open file");
+void initMutexes() {
+	int err;
+	if ((err = pthread_mutex_init(&dataMutex, 0)) != 0) {
+		syserr(err, "dataMutex init failed");
 	}
-	while (1) {
-		read = receive_message(sockfd, line, LINE_SIZE, 0);
-		if (read < 0)
-			PRINT_ERRNO();
-		if (read == 0)
-			break;
-		fputs(line, fp);
+	if ((err = pthread_mutex_init(&splitMutex, 0)) != 0) {
+		syserr(err, "splitMutex init failed");
 	}
-	fclose(fp);
-	printf("File received successfully\n");
 }
 
+void destroyMutexes() {
+	int err;
+	if ((err = pthread_mutex_destroy(&dataMutex) != 0)) {
+		syserr(err, "mutex destroy failed");
+	}
+	if ((err = pthread_mutex_destroy(&splitMutex) != 0)) {
+		syserr(err, "mutex destroy failed");
+	}
+}
+
+void changeTotalData(size_t file_size) {
+	int err;
+	if ((err = pthread_mutex_lock(&dataMutex)) != 0)
+		syserr(err, "lock failed");
+	sumOfData += file_size;
+	if ((err = pthread_mutex_unlock(&dataMutex)) != 0)
+		syserr(err, "unlock failed");
+}
+
+
 void *handle_connection(void *client_fd_ptr) {
+	int err;
 	int client_fd = *(int *) client_fd_ptr;
 	free(client_fd_ptr);
 
@@ -51,21 +61,47 @@ void *handle_connection(void *client_fd_ptr) {
 	if (read <= 0) {
 		PRINT_ERRNO();
 	}
+
+	if ((err = pthread_mutex_lock(&splitMutex)) != 0)
+		syserr(err, "lock failed");
 	char *token = strtok(line, " ");
 	char *filename = token;
 	token = strtok(NULL, " ");
 	char *file_size_str = token;
-	size_t file_size = strtoul(file_size_str, NULL, 10);
+	if ((err = pthread_mutex_unlock(&splitMutex)) != 0)
+		syserr(err, "unlock failed");
+
+	char *startOfFile;
+	size_t file_size = strtoul(file_size_str, &startOfFile, 10);
 
 	printf("new client [%s:%d] size=[%lu bytes] file=[%s]\n", ip, port,
 	       file_size, filename);
 
-	write_file(client_fd, filename);
+	FILE *fp = fopen(filename, "w+");
+	fputs(startOfFile, fp);
 
-	//TODO MUTEX P
-	sumOfData += file_size;
-	//TODO MUTEX Q
+	char newLine[LINE_SIZE];
+	if (fp == NULL) {
+		fatal("Could not open file");
+	}
+	while (1) {
+		memset(newLine, 0, LINE_SIZE);
+		read = receive_message(client_fd, &newLine, LINE_SIZE, 0);
+		if (read < 0)
+			PRINT_ERRNO();
+		if (read == 0)
+			break;
 
+		for (size_t i = 0; i < read; i++) {
+			if (newLine[i] != '\0')
+				putc(newLine[i], fp);
+		}
+	}
+
+	fclose(fp);
+	printf("File received successfully\n");
+
+	changeTotalData(file_size);
 	printf("Total data achieved: %lu\n", sumOfData);
 
 	printf("[thread %lu, pid %d] connection closed\n",
@@ -78,6 +114,8 @@ int main(int argc, char *argv[]) {
 	if (argc != 2) {
 		fatal("Usage: %s <port>", argv[0]);
 	}
+
+	initMutexes();
 
 	int port = read_port(argv[1]);
 
@@ -103,5 +141,9 @@ int main(int argc, char *argv[]) {
 		                           client_fd_pointer));
 		CHECK_ERRNO(pthread_detach(thread));
 	}
+
+//	if ((err = pthread_mutex_destroy(&dataMutex) != 0)) {
+//		syserr (err, "cond destroy 1 failed");
+//	}
 }
 

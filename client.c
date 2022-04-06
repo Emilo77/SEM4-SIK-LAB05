@@ -21,9 +21,11 @@ static const char exit_string[] = "exit";
 void send_file(FILE *fp, int sockfd){
 	char data[BUFFER_SIZE];
 
+	memset(data, 0, sizeof(data));
+
 	while(fgets(data, BUFFER_SIZE, fp) != NULL) {
-		printf("Sent: %s", data);
 		send_message(sockfd, data, BUFFER_SIZE, 0);
+		memset(data, 0, sizeof(data));
 	}
 }
 
@@ -62,10 +64,11 @@ int main(int argc, char *argv[]) {
 	size_t message_length = strnlen(argv[3], BUFFER_SIZE);
 	printf("Message: %s\n", argv[3]);
 
+
 	send_message(socket_fd, argv[3], message_length, flags);
-	printf("Sent file name and file size to server %s:%d\n", server_ip, server_port);
 
 	send_file(f, socket_fd);
+
 	fclose(f);
 	printf("Sent file to server %s:%d successfully.\n", server_ip, server_port);
 
