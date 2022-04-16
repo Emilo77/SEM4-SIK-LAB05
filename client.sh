@@ -1,2 +1,2 @@
-gcc -pthread -o client client.c
-./client localhost 5959 file.txt
+gcc -pthread -o file-client-tcp file-client-tcp.c
+./file-client-tcp localhost 5959 file.txt

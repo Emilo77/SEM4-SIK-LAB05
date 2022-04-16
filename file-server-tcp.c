@@ -36,12 +36,11 @@ void changeTotalData(size_t file_size) {
 }
 
 void readFile(struct fileInfo info, int client_fd) {
-  int fp = open("result.txt", O_CREAT | O_TRUNC | O_RDWR, 06666);
+  int fp = open(info.filename, O_CREAT | O_TRUNC | O_RDWR, 06666);
   size_t read_size = 0;
   while (read_size < info.file_size) {
     size_t read;
     read = receive_message(client_fd, &buffer, BUFFER_SIZE, 0);
-    printf("Read %lu bytes\n", read);
     if (read < 0)
       PRINT_ERRNO();
     if (read == 0)
@@ -72,7 +71,7 @@ void *handle_connection(void *client_fd_ptr) {
 
   readFile(file_info, client_fd);
 
-  size_t size_achieved = check_file_size("result.txt");
+  size_t size_achieved = check_file_size(file_info.filename);
   if (size_achieved != file_info.file_size) {
     printf("File size mismatch: expected %zu, got %zu\n", file_info.file_size,
            size_achieved);
